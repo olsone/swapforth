@@ -15,6 +15,13 @@ j1a.bin: $(VERILOGS) j1a.pcf Makefile ../build/ram.v
 	icepack j1a.txt j1a0.bin
 	icemulti -p0 j1a0.bin > j1a.bin && rm j1a0.bin
 
+j1a-iceblink.bin: $(VERILOGS) j1a-iceblink.pcf Makefile ../build/ram.v
+	yosys  -q -p "synth_ice40 -top top -abc2 -blif j1a.blif" $(VERILOGS)
+	arachne-pnr -P vq100 -p j1a-iceblink.pcf j1a.blif -o j1a.txt
+	#skipped:# icebox_explain j1a.txt > j1a.ex
+	icepack j1a.txt j1a0.bin
+	icemulti -p0 j1a0.bin > j1a-iceblink.bin && rm j1a0.bin
+
 j1a8k.bin: $(VERILOGS8k) j1a8k.pcf Makefile ../build/ram.v
 	yosys  -q -p "synth_ice40 -top top -abc2 -blif j1a8k.blif" $(VERILOGS8k)
 	arachne-pnr -d 8k -p j1a8k.pcf j1a8k.blif -o j1a8k.txt
@@ -33,7 +40,10 @@ j1a8k: j1a8k.bin
 	sudo iceprog j1a8k.bin
 
 j1a: j1a.bin
-	sudo iceprog j1a.bin
+	sudo iceprog j1a.bin   # for iceStick
+
+j1a-iceblink: j1a-iceblink.bin
+	sudo /home/eolson/iceBurn/iCEburn.py -e -v -w j1a-iceblink.bin	# for iceBlink
 
 j4a: j4a.bin
 	sudo iceprog j4a.bin

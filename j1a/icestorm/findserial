@@ -2,5 +2,7 @@
 for D in /dev/ttyUSB?
 do
   udevadm info -a -n $D|grep 'ATTRS{idProduct}=="6010"'>/dev/null && echo $D
+# Prolific vendor id 2303. Found on iceblink board
+  udevadm info -a -n $D|grep 'ATTRS{idProduct}=="2303"'>/dev/null && echo $D
 done
 true

@@ -26,6 +26,9 @@ j4a:
 j1a8k:
 	make -C icestorm j1a8k
 
+j1a-iceblink:
+	make -C icestorm j1a-iceblink
+
 j1a:
 	make -C icestorm j1a
 
