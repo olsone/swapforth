@@ -1,20 +1,20 @@
-\ set direction=output, of the 8 bits on j3 
+\ set direction=output, of the top 4 bits on j3 
 : j3.dir
-  $ff $0080 io!
+  $f0 $0080 io!
 ;
-
+ 
 
 \ measure time to count to 16:
 \ without this word: 117.5 us 
 \ with this: 123 us
-: j3!
+: j3!  ( d -- )
    $0040 io!
 ;
 
 \ up counter, to $ff, on outputs
 : j3.count
   $ff 0 do 
-    i $0040 io!
+    i j3!
   loop
 ;
 

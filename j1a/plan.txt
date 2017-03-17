@@ -1,0 +1,115 @@
+I2S sound project
+aside: use logic analyzer to decode SPI.
+
+
+1. drive the HDR2 peripheral from forth [DONE i2s.fs]
+2. drive the HDR2 peripheral with clock in HDL
+3. build LRCLK and MCLK in HDL
+4. add symbol register in HDL and send to I2S. manipulate from forth.
+5. add toggle register in HDL
+6. add timing register in HDL and connect register to forth
+7. build wave function in HDL
+
+1. 
+Alternatives
+1a. remove the ioport hdr1 declaration from j1a.v, replace it with custom HDL
+1b. try bit banging the hdr1
+3b. bit bang LRCK and MCLK
+
+Requirements
+
+Implement powerup behavior - MCK, LRCK and SCLK for 256 clocks (1 LRCK cycle). Do this with RESET.
+
+	"Once MCLK and LRCK are detected, MCLK occurrences are counted over one LRCK period to determine the MCLK/LRCK frequency ratio. Power is then applied to the internal voltage reference."
+	
+	"Once valid LRCK and SDIN are supplied (and SCLK if used) approximately 2000 sample periods later audio output begins"
+
+
+
+
+
+Background
+
+Pinout of I2S
+1 MCK
+2 LRCK
+3 SCLK
+4 SDIN
+5 GND
+6 VCC
+
+Logic probe
+1 red
+2 orange
+3 yellow
+4 green
+
+
+Pinout of HDR1 on IceStick
+
+J1 connector, 						J2 connector
+J1 is labeled 119-112
+J2 is the PMOD
+J3 is labeled 44-62
+
+
+ordered MSB to LSB verified for bank 0 on J3
+check bank 2 on J1
+Pin "CPLD I/O Bank 0" "CPLD Pin" 	Pin "CPLD I/O Bank 2" 	"CPLD Pin"
+1 	3.3v 				- 			1 	3.3v 				-
+2 	Ground 				- 			2 	Ground 				-
+3 	PIO0_02 			112 		3 	PIO2_17 			62
+4 	PIO0_03 			113 		4 	PIO2_16 			61
+5 	PIO0_04 			114 		5 	PIO2_15 			60
+6 	PIO0_05 			115 		6 	PIO2_14 			56
+
+7 	PIO0_06 			116 		7 	PIO2_13 			48
+8 	PIO0_07 			117 		8 	PIO2_12 			47
+9 	PIO0_08 			118 		9 	PIO2_11 			45
+10	PIO0_09 			119 		10 	PIO2_10 			44
+
+Swapforth io memory map
+  /*        bit   mode    device
+      0001  0     r/w     PMOD GPIO
+      0002  1     r/w     PMOD direction
+      0004  2     r/w     LEDS
+      0008  3     r/w     misc.out
+      0010  4     r/w     J1 GPIO
+      0020  5     r/w     J1 direction
+      0040  6     r/w     J3 GPIO
+      0080  7     r/w     J3 direction
+      0800  11      w     sb_warmboot
+      1000  12    r/w     UART RX, UART TX
+      2000  13    r       misc.in
+  */
+  
+HDL connections for headers
+
+J1 is PIO2_17, PIO2_16, PIO2_15, PIO2_14, PIO2_13, PIO2_12, PIO2_11, PIO2_10
+LSB to MSB:
+J3 is PIO0_09, PIO0_08, PIO0_07, PIO0_06, PIO0_05, PIO0_04, PIO0_03, PIO0_02
+
+direction bits 1:output, 0:input
+we want 4 outputs
+
+Frequencies
+	
+	MCK
+	With bit-banging i2s.fs achieved 645 kHz.
+	\ measurement of MCK: 1.55 us/cycle or 645kHz (spec .5 to 50 MHz)
+	
+	LRCK
+	\ input sample rate is 1/32 of that or 24kHz (spec 2 to 200 kHz)
+	
+	SCLK internal only if certain ratios
+	Prefer SCLK external equal to MCK.
+	
+	IceStick clock 12 MHz
+	LRCLK = CLK/256 = 46875
+	
+	Square wave
+	anything up to SCLK
+
+Ideally
+	HDL runs MCK and SCLK at 12 MHz.
+	LRCK is 1/256 

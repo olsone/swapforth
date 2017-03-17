@@ -1,0 +1,6 @@
+\ set direction with $0f $0040 io!
+
+
+
+: hdr2_test
+$0f $0040 io!
