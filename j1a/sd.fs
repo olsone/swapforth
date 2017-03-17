@@ -27,6 +27,8 @@ variable flags
 \ ( x -- x) write and read 8 bits from SPI port
 \ 8 lshift is to put the MSB in the sign bit
 \ mask  2 is to mask the MOSI bit out of a $ffff flag
+\ uses 1 stack word as shift register.
+\   the upper 8 bits are output, lower 8 bits accumulate input
 \ 
 : spi
 \    dup .x ." >spi> "
